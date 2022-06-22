@@ -29,7 +29,7 @@ class UserTest extends TestCase
             );
     }
 
-    public function test_login_fail()
+    public function test_login_fail_password()
     {
         $response = $this->postJson('/api/login', [
             'email' => 'ViviHasanah@gmail.com',
@@ -42,7 +42,10 @@ class UserTest extends TestCase
                 fn (AssertableJson $json) =>
                 $this->is_not_authenticated($json)
             );
+    }
 
+    public function test_login_fail_email()
+    {
         $response2 = $this->postJson('/api/login', [
             'email' => 'ViviHasanah2@gmail.com',
             'password' => 'password'
@@ -53,6 +56,34 @@ class UserTest extends TestCase
             ->assertJson(
                 fn (AssertableJson $json) =>
                 $this->is_not_authenticated($json)
+            );
+    }
+
+    public function test_login_fail_no_email()
+    {
+        $response2 = $this->postJson('/api/login', [
+            'password' => 'password'
+        ]);
+
+        $response2
+            ->assertStatus(422)
+            ->assertJson(
+                fn (AssertableJson $json) =>
+                $this->is_login_fail($json)
+            );
+    }
+
+    public function test_login_fail_no_password()
+    {
+        $response2 = $this->postJson('/api/login', [
+            'email' => 'ViviHasanah2@gmail.com',
+        ]);
+
+        $response2
+            ->assertStatus(422)
+            ->assertJson(
+                fn (AssertableJson $json) =>
+                $this->is_login_fail($json)
             );
     }
 
@@ -208,6 +239,23 @@ class UserTest extends TestCase
                 'data' => 'array'
             ])
             ->where('message', 'you are not successfully register, please try again')
+            ->has(
+                'data',
+                fn ($data) =>
+                $data
+                    ->etc()
+            );
+    }
+
+    protected function is_login_fail(AssertableJson $json)
+    {
+        $json
+            ->has('message')
+            ->whereAllType([
+                'message' => 'string',
+                'data' => 'array'
+            ])
+            ->where('message', 'email and password are required')
             ->has(
                 'data',
                 fn ($data) =>
