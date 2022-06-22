@@ -15,6 +15,21 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $u = User::where('email', $request->email)->first();
+
+        $rules = [
+            'email' => 'required|string',
+            'password' => 'required|string',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'email and password are required',
+                'data' => $validator->errors()
+            ], 422);
+        }
+
         if ($u) {
             if (Hash::check($request->password, $u->password)) {
                 $u->api_token = Str::random(24);
