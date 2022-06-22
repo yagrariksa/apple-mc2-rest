@@ -9,6 +9,36 @@ use Tests\TestCase;
 
 class UserTest extends TestCase
 {
+    public function test_bearer_token()
+    {
+        $token = "Q7oTBpS9FmgLzhPTRIFVjUYr";
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token
+        ])->get('/api/test');
+
+        $response
+            ->assertStatus(200);
+    }
+
+    public function test_bearer_token_fail()
+    {
+        $token = "a";
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token
+        ])->get('/api/test');
+
+        $response
+            ->assertStatus(401)
+            ->assertJson(
+                fn (AssertableJson $json) =>
+                $json
+                    ->has('message')
+                    ->whereType('message', 'string')
+                    ->where('message', 'you are unauthenticated')
+                    ->has('data')
+                    ->whereType('data', 'array')
+            );
+    }
     /**
      * A basic feature test example.
      *
@@ -181,9 +211,7 @@ class UserTest extends TestCase
             );
     }
 
-
-
-    public function is_user(AssertableJson $user)
+    public static function is_user(AssertableJson $user)
     {
         $user
             ->hasAll([

@@ -18,8 +18,12 @@ class ReviewResource extends JsonResource
         $data['url'] = [];
         $data['url']['all'] = route('api.review.index');
         $data['url']['details'] = route('api.review.show', $data['id']);
-        $data['food'] = new FoodResource($data['food']);
-        $data['user'] = new UserResource($data['user']);
+        if (array_key_exists('food', $data)) {
+            $data['food'] = new FoodResource($data['food']);
+        }
+        if (array_key_exists('user', $data)) {
+            $data['user'] = new UserResource($data['user']);
+        }
         unset($data['id']);
         unset($data['uid']);
         unset($data['user_id']);

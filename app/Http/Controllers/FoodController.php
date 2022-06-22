@@ -2,16 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ReviewResource;
-use App\Models\Review;
+use App\Models\Food;
 use Illuminate\Http\Request;
 
-class ReviewController extends Controller
+class FoodController extends Controller
 {
-    public function test(Request $request)
-    {
-        return true;
-    }
     /**
      * Display a listing of the resource.
      *
@@ -19,10 +14,7 @@ class ReviewController extends Controller
      */
     public function index()
     {
-        return response()->json([
-            'message' => 'retrieve all reviews data',
-            'data' => ReviewResource::collection(Review::with(['food','food.restaurant', 'user'])->get())
-        ]);
+        //
     }
 
     /**
@@ -49,33 +41,21 @@ class ReviewController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Review  $review
+     * @param  \App\Models\Food  $food
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $review)
+    public function show(Food $food)
     {
-        $review = Review::with(['food', 'food.restaurant', 'user'])->find($review);
-
-        if(!$review){
-            return response()->json([
-                'message' => 'data not found',
-                'data' => []
-            ], 404);
-        }
-
-        return response()->json([
-            'message' => 'retrieve spesific review',
-            'data' => new ReviewResource($review)
-        ]);
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Review  $review
+     * @param  \App\Models\Food  $food
      * @return \Illuminate\Http\Response
      */
-    public function edit(Review $review)
+    public function edit(Food $food)
     {
         //
     }
@@ -84,10 +64,10 @@ class ReviewController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Review  $review
+     * @param  \App\Models\Food  $food
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Review $review)
+    public function update(Request $request, Food $food)
     {
         //
     }
@@ -95,10 +75,10 @@ class ReviewController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Review  $review
+     * @param  \App\Models\Food  $food
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Review $review)
+    public function destroy(Food $food)
     {
         //
     }

@@ -15,7 +15,12 @@ class FoodResource extends JsonResource
     public function toArray($request)
     {
         $data = parent::toArray($request);
-        $data['restaurant'] = new RestaurantResource($data['restaurant']);
+        if (array_key_exists('restaurant', $data)) {
+            $data['restaurant'] = new RestaurantResource($data['restaurant']);
+        }
+        if (array_key_exists('reviews', $data)) {
+            $data['reviews'] = ReviewResource::collection($data['reviews']);
+        }
         unset($data['id']);
         unset($data['uid']);
         unset($data['restaurant_id']);
