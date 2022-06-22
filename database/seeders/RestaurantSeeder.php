@@ -32,6 +32,7 @@ class RestaurantSeeder extends Seeder
             $d = $district[array_rand($district)];
             Restaurant::create([
                 'uid' => Uuid::uuid4(),
+                'name' => $faker->firstName() . " " . $faker->colorName(),
                 'location' => $faker->streetName() . ", " . $d,
                 'district' => $d
             ]);
