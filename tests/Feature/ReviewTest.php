@@ -10,13 +10,19 @@ use Tests\TestCase;
 
 class ReviewTest extends TestCase
 {
-    public static function is_review(AssertableJson $json)
+    public static function is_review(AssertableJson $json, $with_id = true)
     {
+        if ($with_id) {
+            $json
+                ->has('id')
+                ->whereType('id', 'integer');
+        }
+
         $json
             ->hasAll([
                 'desc', 'rating', 'price',
                 'FDA', 'created_at', 'updated_at',
-                'food', 'user', 'url'
+                'user', 'url', 'images', 'porsi'
             ])
             ->whereAllType([
                 'desc' => 'string',
@@ -25,20 +31,11 @@ class ReviewTest extends TestCase
                 'FDA' => 'string',
                 'created_at' => 'string',
                 'updated_at' => 'string',
-                'food' => 'array',
                 'user' => 'array',
                 'url' => 'array',
+                'images' => 'array',
+                'porsi' => 'string',
             ])
-            ->has(
-                'food',
-                fn ($food) =>
-                FoodTest::is_food($food)
-            )
-            ->has(
-                'user',
-                fn ($user) =>
-                UserTest::is_user($user)
-            )
             ->has(
                 'url',
                 fn ($url) =>
@@ -50,6 +47,28 @@ class ReviewTest extends TestCase
                         'all' => 'string',
                         'all' => 'string',
                     ])
+            );
+    }
+    public static function is_review_belongs_to_food_belongs_to_restaurant(AssertableJson $json, $with_id = true)
+    {
+        ReviewTest::is_review($json, $with_id);
+
+        $json
+            ->has(
+                'food',
+                fn ($food) =>
+                FoodTest::is_food_belongs_to_restaurant($food)
+            )
+            ->whereType('food', 'array');
+    }
+
+    public static function is_only_review_by_user(AssertableJson $json)
+    {
+        $json
+            ->has(
+                'user',
+                fn ($user) =>
+                UserTest::is_user($user)
             );
     }
     public function test_get_all_review()
@@ -68,9 +87,11 @@ class ReviewTest extends TestCase
                     ])
                     ->has(
                         'data',
-                        100,
+                    )
+                    ->has(
+                        'data.0',
                         fn ($review) =>
-                        $this->is_review($review)
+                        $this->is_review_belongs_to_food_belongs_to_restaurant($review)
                     )
             );
     }
@@ -89,7 +110,7 @@ class ReviewTest extends TestCase
                     ->has(
                         'data',
                         fn (AssertableJson $review) =>
-                        $this->is_review($review)
+                        $this->is_review_belongs_to_food_belongs_to_restaurant($review, false)
                     )
             );
     }
