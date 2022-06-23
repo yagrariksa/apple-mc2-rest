@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ReviewResource;
-use App\Models\Review;
+use App\Http\Resources\RestaurantResource;
+use App\Models\Restaurant;
 use Illuminate\Http\Request;
 
-class ReviewController extends Controller
+class RestaurantController extends Controller
 {
-    public function test(Request $request)
-    {
-        return true;
-    }
     /**
      * Display a listing of the resource.
      *
@@ -19,9 +15,11 @@ class ReviewController extends Controller
      */
     public function index()
     {
+        $restaurant = Restaurant::with(['foods', 'foods.reviews'])->get();
+
         return response()->json([
-            'message' => 'retrieve all reviews data',
-            'data' => ReviewResource::collection(Review::with(['food','food.restaurant', 'user'])->get())
+            'message' => 'something',
+            'data' => RestaurantResource::collection($restaurant)
         ]);
     }
 
@@ -49,33 +47,32 @@ class ReviewController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Review  $review
+     * @param  \App\Models\Restaurant  $restaurant
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $review)
+    public function show(Request $request, $restaurant)
     {
-        $review = Review::with(['food', 'food.restaurant', 'user'])->find($review);
+        $restaurant = Restaurant::with('foods', 'foods.reviews')->find($restaurant);
 
-        if(!$review){
+        if (!$restaurant) {
             return response()->json([
-                'message' => 'data not found',
+                'message' => 'item not found',
                 'data' => []
             ], 404);
         }
-
         return response()->json([
-            'message' => 'retrieve spesific review',
-            'data' => new ReviewResource($review)
+            'message' => 'something',
+            'data' => new RestaurantResource($restaurant)
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Review  $review
+     * @param  \App\Models\Restaurant  $restaurant
      * @return \Illuminate\Http\Response
      */
-    public function edit(Review $review)
+    public function edit(Restaurant $restaurant)
     {
         //
     }
@@ -84,10 +81,10 @@ class ReviewController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Review  $review
+     * @param  \App\Models\Restaurant  $restaurant
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Review $review)
+    public function update(Request $request, Restaurant $restaurant)
     {
         //
     }
@@ -95,10 +92,10 @@ class ReviewController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Review  $review
+     * @param  \App\Models\Restaurant  $restaurant
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Review $review)
+    public function destroy(Restaurant $restaurant)
     {
         //
     }

@@ -18,7 +18,7 @@ class Restaurant extends Model
 
     public function foods()
     {
-        return $this->hasMany(Food::class, 'restauran_id','id');
+        return $this->hasMany(Food::class, 'restaurant_id', 'id');
     }
 
     public function reviews()
@@ -26,7 +26,7 @@ class Restaurant extends Model
         $data = [];
         $foods = $this->foods();
         foreach ($foods as $food) {
-            array_push($data, $food->reviews);
+            array_merge($data, $food->reviews);
         }
         return $data;
     }
