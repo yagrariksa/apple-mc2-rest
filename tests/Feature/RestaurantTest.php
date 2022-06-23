@@ -11,31 +11,52 @@ use Tests\TestCase;
 class RestaurantTest extends TestCase
 {
 
-    public static function is_restaurant(AssertableJson $json)
+    public static function is_restaurant(AssertableJson $json, $with_id = true)
     {
+        if ($with_id) {
+            $json
+                ->has('id')
+                ->whereType('id', 'integer');
+        }
+
         $json
             ->hasAll([
-                'name', 'location', 'district'
+                'name', 'location', 'district', 'url'
             ])
             ->whereAllType([
                 'name' => 'string',
                 'location' => 'string',
                 'district' => 'string',
-            ]);
+                'url' => 'array',
+            ])
+            ->has(
+                'url',
+                fn (AssertableJson $url) =>
+                $url
+                    ->hasAll(['all', 'details'])
+                    ->whereAllType([
+                        'all' => 'string',
+                        'details' => 'string',
+                    ])
+            )
+            ->etc();
     }
 
-    public static function is_restaurant_full_data(AssertableJson $json)
+    public static function is_restaurant_has_many_foods(AssertableJson $json, $with_id = true)
     {
+        RestaurantTest::is_restaurant($json, $with_id);
         $json
-            ->hasAll([
-                'name', 'location', 'district', 'foods'
-            ])
-            ->whereAllType([
-                'name' => 'string',
-                'location' => 'string',
-                'district' => 'string',
-                'foods' => 'array',
-            ]);
+            ->has('foods')
+            ->whereType('foods', 'array');
+
+        if (count($json->toArray()['foods']) > 0) {
+            $json
+                ->has(
+                    'foods.0',
+                    fn (AssertableJson $food) =>
+                    FoodTest::is_food_has_many_review($food)
+                );
+        }
     }
 
     public function test_get_all_restaurant()
@@ -56,7 +77,7 @@ class RestaurantTest extends TestCase
                     ->has(
                         'data.0',
                         fn (AssertableJson $restaurant) =>
-                        $this->is_restaurant_full_data($restaurant)
+                        $this->is_restaurant_has_many_foods($restaurant)
                     )
             );
     }
@@ -79,7 +100,7 @@ class RestaurantTest extends TestCase
                     ->has(
                         'data',
                         fn (AssertableJson $restaurant) =>
-                        $this->is_restaurant_full_data($restaurant)
+                        $this->is_restaurant_has_many_foods($restaurant, false)
                     )
             );
     }

@@ -22,11 +22,13 @@ class FoodSeeder extends Seeder
         $r = Restaurant::get();
         foreach ($r as $resto) {
             for ($i = 0; $i < 5; $i++) {
-                Food::create([
-                    'restaurant_id' => $resto->id,
-                    'uid' => Uuid::uuid4(),
-                    'name' => $faker->colorName() . " " . $faker->lastName()
-                ]);
+                if (rand(0, 10) > 5) {
+                    Food::create([
+                        'restaurant_id' => $resto->id,
+                        'uid' => Uuid::uuid4(),
+                        'name' => $faker->colorName() . " " . $faker->lastName()
+                    ]);
+                }
             }
         }
     }

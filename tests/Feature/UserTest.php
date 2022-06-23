@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -11,7 +12,8 @@ class UserTest extends TestCase
 {
     public function test_bearer_token()
     {
-        $token = "Q7oTBpS9FmgLzhPTRIFVjUYr";
+        $user = User::whereNotNull('api_token')->first();
+        $token = $user->api_token;
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token
         ])->get('/api/test');
@@ -46,8 +48,9 @@ class UserTest extends TestCase
      */
     public function test_login()
     {
+        $user = User::first();
         $response = $this->postJson('/api/login', [
-            'email' => 'ViviHasanah@gmail.com',
+            'email' => $user->email,
             'password' => 'password'
         ]);
 
@@ -197,9 +200,10 @@ class UserTest extends TestCase
 
     public function test_register_fail_email_is_taken()
     {
+        $user = User::first();
         $response = $this->postJson('/api/register', [
-            'name' => 'EkoSumeko',
-            'email' => 'ViviHasanah@gmail.com',
+            'name' => $user->name,
+            'email' => $user->email,
             'password' => 'password'
         ]);
 
@@ -215,11 +219,13 @@ class UserTest extends TestCase
     {
         $user
             ->hasAll([
-                'name', 'email'
+                'name', 'email', 'image', 'role'
             ])
             ->whereAllType([
                 'name' => 'string',
-                'email' => 'string'
+                'email' => 'string',
+                'image' => 'string',
+                'role' => 'string'
             ]);
     }
 

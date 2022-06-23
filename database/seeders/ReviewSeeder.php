@@ -24,7 +24,11 @@ class ReviewSeeder extends Seeder
         $f = Food::get();
         $u = User::get();
         $FDA = ['grabfood', 'gofood', 'shopeefood', 'travelokafood'];
-        for ($i = 0; $i < 100; $i++) {
+        $p = [
+            'pelit', 'b aja',
+            'pas', 'kuli'
+        ];
+        for ($i = 0; $i < 20; $i++) {
             Review::create([
                 'uid' => Uuid::uuid4(),
                 'user_id' => $u->random()->id,
@@ -33,6 +37,7 @@ class ReviewSeeder extends Seeder
                 'rating' => rand(1, 5),
                 'price' => rand(10000, 40000),
                 'FDA' => $FDA[array_rand($FDA)],
+                'porsi' => $p[array_rand($p)],
             ]);
         }
     }

@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
         $this->call(FoodSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(ReviewSeeder::class);
+        $this->call(ReviewImageSeeder::class);
+        
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
