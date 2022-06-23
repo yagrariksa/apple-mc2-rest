@@ -67,11 +67,15 @@ class AuthController extends Controller
             ], 422);
         }
 
+        $r = ['anak kos', 'anak mentri', 'anak DPR', 'anak hits'];
         $u = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'api_token' => Str::random(24),
+            'image' => 'https://api.lorem.space/image/face?w=150&h=150',
+            'role' => $r[array_rand($r)],
+
         ]);
 
         return response()->json([
