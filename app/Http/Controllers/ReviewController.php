@@ -21,7 +21,7 @@ class ReviewController extends Controller
     {
         return response()->json([
             'message' => 'retrieve all reviews data',
-            'data' => ReviewResource::collection(Review::with(['food','food.restaurant', 'user'])->get())
+            'data' => ReviewResource::collection(Review::with(['food','food.restaurant', 'user', 'images'])->get())
         ]);
     }
 
@@ -54,7 +54,7 @@ class ReviewController extends Controller
      */
     public function show(Request $request, $review)
     {
-        $review = Review::with(['food', 'food.restaurant', 'user'])->find($review);
+        $review = Review::with(['food', 'food.restaurant', 'user', 'images'])->find($review);
 
         if(!$review){
             return response()->json([
@@ -65,7 +65,7 @@ class ReviewController extends Controller
 
         return response()->json([
             'message' => 'retrieve spesific review',
-            'data' => new ReviewResource($review)
+            'data' => new ReviewResource($review, 'without_id')
         ]);
     }
 

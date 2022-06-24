@@ -18,6 +18,7 @@ class Review extends Model
         'rating',
         'price',
         'FDA',
+        'porsi'
     ];
 
     public function user()
@@ -28,5 +29,10 @@ class Review extends Model
     public function food()
     {
         return $this->belongsTo(Food::class, 'food_id', 'id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ReviewImage::class, 'review_id', 'id');
     }
 }

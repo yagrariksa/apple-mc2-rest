@@ -28,7 +28,7 @@ class RestaurantSeeder extends Seeder
             'Rungkut',
             'Tenggilis Mejoyo',
         ];
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $d = $district[array_rand($district)];
             Restaurant::create([
                 'uid' => Uuid::uuid4(),

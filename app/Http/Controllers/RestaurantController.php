@@ -15,7 +15,7 @@ class RestaurantController extends Controller
      */
     public function index()
     {
-        $restaurant = Restaurant::with(['foods', 'foods.reviews'])->get();
+        $restaurant = Restaurant::with(['foods', 'foods.reviews', 'foods.reviews.images', 'foods.reviews.user'])->get();
 
         return response()->json([
             'message' => 'something',
@@ -52,7 +52,7 @@ class RestaurantController extends Controller
      */
     public function show(Request $request, $restaurant)
     {
-        $restaurant = Restaurant::with('foods', 'foods.reviews')->find($restaurant);
+        $restaurant = Restaurant::with(['foods', 'foods.reviews', 'foods.reviews.images', 'foods.reviews.user'])->find($restaurant);
 
         if (!$restaurant) {
             return response()->json([
@@ -62,7 +62,7 @@ class RestaurantController extends Controller
         }
         return response()->json([
             'message' => 'something',
-            'data' => new RestaurantResource($restaurant)
+            'data' => new RestaurantResource($restaurant, 'without_id')
         ]);
     }
 

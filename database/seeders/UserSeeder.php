@@ -18,12 +18,15 @@ class UserSeeder extends Seeder
     public function run()
     {
         $faker = Factory::create('id_ID');
-        for ($i = 0; $i < 50; $i++) {
+        $r = ['anak kos', 'anak mentri', 'anak DPR', 'anak hits'];
+        for ($i = 0; $i < 10; $i++) {
             $name = $faker->name();
             $names = explode(' ', $name);
             User::create([
                 'name' => $name,
                 'email' => join('', [$names[0], $names[1], '@gmail.com']),
+                'image' => 'https://api.lorem.space/image/face?w=150&h=150',
+                'role' => $r[array_rand($r)],
                 'password' => Hash::make('password'),
             ]);
         }
