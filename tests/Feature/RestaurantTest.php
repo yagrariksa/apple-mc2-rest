@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Restaurant;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -11,13 +12,11 @@ use Tests\TestCase;
 class RestaurantTest extends TestCase
 {
 
-    public static function is_restaurant(AssertableJson $json, $with_id = true)
+    public static function is_restaurant(AssertableJson $json)
     {
-        if ($with_id) {
-            $json
-                ->has('id')
-                ->whereType('id', 'integer');
-        }
+        $json
+            ->has('id')
+            ->whereType('id', 'integer');
 
         $json
             ->hasAll([
@@ -42,9 +41,9 @@ class RestaurantTest extends TestCase
             ->etc();
     }
 
-    public static function is_restaurant_has_many_foods(AssertableJson $json, $with_id = true)
+    public static function is_restaurant_has_many_foods(AssertableJson $json)
     {
-        RestaurantTest::is_restaurant($json, $with_id);
+        RestaurantTest::is_restaurant($json);
         $json
             ->has('foods')
             ->whereType('foods', 'array');
@@ -61,7 +60,10 @@ class RestaurantTest extends TestCase
 
     public function test_get_all_restaurant()
     {
-        $response = $this->get('/api/restaurant');
+        $user = User::whereNotNull('api_token')->first();
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $user->api_token
+        ])->get('/api/restaurant');
 
         $response
             ->assertStatus(200)
@@ -85,7 +87,10 @@ class RestaurantTest extends TestCase
     public function test_get_one_restaurant()
     {
         $restaurant = Restaurant::first();
-        $response = $this->get("/api/restaurant/" . $restaurant->id);
+        $user = User::whereNotNull('api_token')->first();
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $user->api_token
+        ])->get("/api/restaurant/" . $restaurant->id);
 
         $response
             ->assertStatus(200)
@@ -100,14 +105,17 @@ class RestaurantTest extends TestCase
                     ->has(
                         'data',
                         fn (AssertableJson $restaurant) =>
-                        $this->is_restaurant_has_many_foods($restaurant, false)
+                        $this->is_restaurant_has_many_foods($restaurant)
                     )
             );
     }
 
     public function test_get_one_restaurant_not_found()
     {
-        $response = $this->get("/api/restaurant/100000");
+        $user = User::whereNotNull('api_token')->first();
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $user->api_token
+        ])->get("/api/restaurant/100000");
 
         $response
             ->assertStatus(404)
@@ -123,8 +131,10 @@ class RestaurantTest extends TestCase
                     ->has(
                         'data',
                         fn (AssertableJson $restaurant) =>
-                        $restaurant->etc()
+                        $restaurant
+                            ->etc()
                     )
+                    ->where('data', [])
             );
     }
 }
