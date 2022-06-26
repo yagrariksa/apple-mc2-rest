@@ -62,7 +62,7 @@ class RestaurantController extends Controller
         }
         return response()->json([
             'message' => 'something',
-            'data' => new RestaurantResource($restaurant, 'without_id')
+            'data' => new RestaurantResource($restaurant)
         ]);
     }
 

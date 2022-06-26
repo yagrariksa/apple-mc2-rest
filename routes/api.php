@@ -24,16 +24,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
-Route::prefix('review')->group(function () {
-    Route::get('/', [ReviewController::class, 'index'])->name('api.review.index');
-    Route::get('/{review}', [ReviewController::class, 'show'])->name('api.review.show');
-});
-
-Route::prefix('restaurant')->group(function () {
-    Route::get('/', [RestaurantController::class, 'index'])->name('api.restaurant.index');
-    Route::get('/{restaurant}', [RestaurantController::class, 'show'])->name('api.restaurant.show');
-});
 
 Route::middleware('auth:api')->group(function () {
+    Route::prefix('review')->group(function () {
+        Route::get('/', [ReviewController::class, 'index'])->name('api.review.index');
+        Route::post('/', [ReviewController::class, 'store'])->name('api.review.index');
+        Route::get('/my', [ReviewController::class, 'my'])->name('api.review.my');
+        Route::get('/{review}', [ReviewController::class, 'show'])->name('api.review.show');
+    });
+
+    Route::prefix('restaurant')->group(function () {
+        Route::get('/', [RestaurantController::class, 'index'])->name('api.restaurant.index');
+        Route::get('/{restaurant}', [RestaurantController::class, 'show'])->name('api.restaurant.show');
+    });
     Route::get('test', [ReviewController::class, 'test']);
 });

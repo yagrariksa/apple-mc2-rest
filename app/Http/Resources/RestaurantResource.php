@@ -6,13 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class RestaurantResource extends JsonResource
 {
-    private $own_rule;
-
-    public function __construct($resource, $rule = "nothing")
-    {
-        parent::__construct($resource);
-        $this->own_rule = $rule;
-    }
 
     /**
      * Transform the resource into an array.
@@ -36,20 +29,6 @@ class RestaurantResource extends JsonResource
         unset($data['created_at']);
         unset($data['updated_at']);
 
-        try {
-            if ($this->own_rule != "nothing") {
-                $data = $this->{$this->own_rule}($data);
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-        
         return $data;
-    }
-
-    private function without_id($request)
-    {
-        unset($request['id']);
-        return $request;
     }
 }
