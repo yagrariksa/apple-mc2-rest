@@ -10,13 +10,11 @@ use Tests\TestCase;
 
 class FoodTest extends TestCase
 {
-    public static function is_food(AssertableJson $json, $with_id = true)
+    public static function is_food(AssertableJson $json)
     {
-        if ($with_id) {
-            $json
-                ->has('id')
-                ->whereType('id', 'integer');
-        }
+        $json
+            ->has('id')
+            ->whereType('id', 'integer');
 
         $json
             ->has('name')
@@ -24,13 +22,13 @@ class FoodTest extends TestCase
     }
     public static function is_food_belongs_to_restaurant(AssertableJson $json)
     {
-        FoodTest::is_food($json, false);
+        FoodTest::is_food($json);
 
         $json
             ->has(
                 'restaurant',
                 fn ($restaurant) =>
-                RestaurantTest::is_restaurant($restaurant, false)
+                RestaurantTest::is_restaurant($restaurant)
             );
     }
 
