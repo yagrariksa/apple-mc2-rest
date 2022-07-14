@@ -122,6 +122,11 @@ class ReviewTest extends TestCase
                         fn (AssertableJson $review) =>
                         $this->is_review_belongs_to_food_belongs_to_restaurant($review)
                     )
+                    ->has(
+                        'data',
+                        fn (AssertableJson $review) =>
+                        $this->has_comment($review)
+                    )
             );
     }
 
@@ -470,6 +475,18 @@ class ReviewTest extends TestCase
                     ReviewTest::is_review_belongs_to_food_belongs_to_restaurant($review)
                 )
                 ->etc();
+        }
+    }
+
+    private function has_comment(AssertableJson $review)
+    {
+        if (count($review->toArray()['comments']) > 0) {
+            $review
+                ->has(
+                    'comments',
+                    fn ($comment) =>
+                    CommentTest::is_comment($comment)
+                );
         }
     }
 
