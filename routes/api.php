@@ -26,6 +26,7 @@ Route::post('register', [AuthController::class, 'register']);
 
 
 Route::middleware('auth:api')->group(function () {
+    Route::post('user', [AuthController::class, 'edit'])->name('api.user.edit');
     Route::prefix('review')->group(function () {
         Route::get('/', [ReviewController::class, 'index'])->name('api.review.index');
         Route::post('/', [ReviewController::class, 'store'])->name('api.review.index');
