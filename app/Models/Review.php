@@ -14,7 +14,6 @@ class Review extends Model
         'user_id',
         'food_id',
         'desc',
-        'images',
         'rating',
         'price',
         'FDA',

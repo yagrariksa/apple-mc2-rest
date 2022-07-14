@@ -47,7 +47,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'you are not authenticated, please correct your email or password',
             'data' => []
-        ], 200);
+        ], 401);
     }
 
     public function register(Request $request)

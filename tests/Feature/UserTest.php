@@ -70,7 +70,7 @@ class UserTest extends TestCase
         ]);
 
         $response
-            ->assertStatus(200)
+            ->assertStatus(401)
             ->assertJson(
                 fn (AssertableJson $json) =>
                 $this->is_not_authenticated($json)
@@ -85,7 +85,7 @@ class UserTest extends TestCase
         ]);
 
         $response2
-            ->assertStatus(200)
+            ->assertStatus(401)
             ->assertJson(
                 fn (AssertableJson $json) =>
                 $this->is_not_authenticated($json)

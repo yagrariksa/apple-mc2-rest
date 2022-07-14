@@ -6,13 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReviewResource extends JsonResource
 {
-    private $own_rule;
-
-    public function __construct($resource, $rule = "nothing")
-    {
-        parent::__construct($resource);
-        $this->own_rule = $rule;
-    }
 
     /**
      * Transform the resource into an array.
@@ -42,29 +35,21 @@ class ReviewResource extends JsonResource
         }
 
         $images = [];
-        foreach ($data['images'] as $img) {
-            array_push($images, $img['filename']);
+        if (array_key_exists('images', $data)) {
+            foreach ($data['images'] as $img) {
+                if (!str_contains($img['filename'], 'https')) {
+                    array_push($images, url('/storage') . '/' . $img['filename']);
+                }else{
+                    array_push($images, $img['filename']);
+                }
+            }
         }
-
         $data['images'] = $images;
         unset($data['uid']);
         unset($data['user_id']);
         unset($data['food_id']);
 
-        try {
-            if ($this->own_rule != "nothing") {
-                $data = $this->{$this->own_rule}($data);
-            }
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
 
         return $data;
-    }
-
-    private function without_id($request)
-    {
-        unset($request['id']);
-        return $request;
     }
 }
