@@ -26,11 +26,34 @@ class ReviewController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $data = Review::with(['food', 'food.restaurant', 'user', 'images']);
+
+        if ($request->query('FDA')) {
+            $data->where('FDA', $request->query('FDA'));
+        }
+
+        if ($request->query('rating')) {
+            $data->where('rating', $request->query('rating'));
+        }
+
+        if ($request->query('pricefinish')) {
+            $data->where('price', '>=', (int)$request->query('pricestart'))
+                ->where('price', '<=',  (int)$request->query('pricefinish'));
+        }
+
+
+        $data = $data->get();
+        if (sizeof($data) < 1) {
+            return response()->json([
+                'message' => 'not found data',
+                'data' => []
+            ], 404);
+        }
         return response()->json([
             'message' => 'retrieve all reviews data',
-            'data' => ReviewResource::collection(Review::with(['food', 'food.restaurant', 'user', 'images'])->get())
+            'data' => ReviewResource::collection($data)
         ]);
     }
 

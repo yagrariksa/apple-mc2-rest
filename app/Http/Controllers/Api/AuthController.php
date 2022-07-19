@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -85,5 +86,39 @@ class AuthController extends Controller
                 'user' => new UserResource($u)
             ]
         ], 201);
+    }
+
+    public function edit(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+
+        if ($request->name) {
+            $user->name = $request->name;
+        }
+
+        if ($request->email) {
+            $user->email = $request->email;
+        }
+
+        if ($request->role) {
+            $user->role = $request->role;
+        }
+
+        if ($request->password) {
+            $user->password = Hash::make($request->password);
+        }
+
+        if ($request->hasFile('image')) {
+            $nameimg = time() . "_" . $request->image->getClientOriginalName();
+            $request->image->storeAs('public', $nameimg);
+
+            $user->image = $nameimg;
+        }
+
+        $user->save();
+        return response()->json([
+            'message'   => 'success edit profile',
+            'data' => new UserResource($user)
+        ]);
     }
 }
