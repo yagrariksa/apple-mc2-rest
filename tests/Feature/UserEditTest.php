@@ -94,6 +94,33 @@ class UserEditTest extends TestCase
             );
     }
 
+    public function test_edit_profileEmailDuplicate()
+    {
+        $user = User::whereNotNull('api_token')->first();
+        $user2 = User::whereNull('api_token')->first();
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $user->api_token
+        ])->post('/api/user', [
+            'email' => $user2->email,
+        ]);
+
+
+        $response
+            ->assertStatus(200)
+            ->assertJson(
+                fn (AssertableJson $json) =>
+                $json
+                    ->has('message')
+                    ->where('message', 'success edit profile')
+                    ->has(
+                        'data',
+                        fn (AssertableJson $user) =>
+                        UserTest::is_user($user)
+                    )
+            );
+    }
+
     public function test_edit_profileOnlyPassword()
     {
         $user = User::whereNotNull('api_token')->first();
