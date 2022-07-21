@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ReviewResource;
+use App\Http\Resources\UserResource;
 use App\Models\Review;
 use App\Models\ReviewImage;
 use App\Models\User;
@@ -19,7 +20,15 @@ class ReviewController extends Controller
 {
     public function test(Request $request)
     {
-        return true;
+        $u = Auth::user();
+        return response()->json([
+            'message' => 'success login',
+            'data' => [
+                'api_token' => $u->api_token,
+                'user' => new UserResource($u)
+            ]
+        ], 201);
+        // return true;
     }
     /**
      * Display a listing of the resource.
@@ -31,18 +40,60 @@ class ReviewController extends Controller
         $data = Review::with(['food', 'food.restaurant', 'user', 'images']);
 
         if ($request->query('FDA')) {
-            $data->where('FDA', $request->query('FDA'));
+            $fda = $request->query('FDA');
+            $fda = explode(',', $fda);
+
+            $data->where(function ($query) use ($fda) {
+                foreach ($fda as $f) {
+                    $query->orWhere('FDA', $f);
+                }
+            });
         }
 
         if ($request->query('rating')) {
-            $data->where('rating', $request->query('rating'));
+            $data->where('rating', '>=', $request->query('rating'));
         }
 
-        if ($request->query('pricefinish')) {
-            $data->where('price', '>=', (int)$request->query('pricestart'))
-                ->where('price', '<=',  (int)$request->query('pricefinish'));
+        if ($request->query('price')) {
+            $price = $request->query('price');
+            $price = explode(',', $price);
+            $data->where(function ($query) use ($price) {
+                foreach ($price as $p) {
+                    switch ($p) {
+                        case 1:
+                            $query->orWhere(function ($q) {
+                                $q->where('price', '>=', '0')->where('price', '<=', '16000');
+                            });
+                            break;
+
+                        case 2:
+                            $query->orWhere(function ($q) {
+                                $q->where('price', '>=', '16001')->where('price', '<=', '40000');
+                            });
+                            break;
+
+                        case 3:
+                            $query->orWhere(function ($q) {
+                                $q->where('price', '>=', '40001')->where('price', '<=', '100000');
+                            });
+                            break;
+
+                        case 4:
+                            $query->orWhere(function ($q) {
+                                $q->where('price', '>', '100000');
+                            });
+                            break;
+
+                        default:
+                            # code...
+                            break;
+                    }
+                }
+            });
         }
 
+        $data->orderBy('created_at', 'desc');
+        // dump($data->toSql());
 
         $data = $data->get();
         if (sizeof($data) < 1) {
@@ -52,7 +103,7 @@ class ReviewController extends Controller
             ], 404);
         }
         return response()->json([
-            'message' => 'retrieve all reviews data',
+            'message' => 'retrieve ' . sizeof($data) . ' reviews data',
             'data' => ReviewResource::collection($data)
         ]);
     }

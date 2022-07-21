@@ -15,9 +15,10 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         $data = parent::toArray($request);
-        if (!str_contains($data['image'], 'https')) {
-            $data['image'] = url('/storage') . '/' . $data['image'];
-        }
+        $data['image'] = 'https://i.pravatar.cc/150?u=' . $data['email'];
+        // if (!str_contains($data['image'], 'https')) {
+        //     $data['image'] = url('/storage') . '/' . $data['image'];
+        // }
         unset($data['id']);
         unset($data['email_verified_at']);
         unset($data['api_token']);
