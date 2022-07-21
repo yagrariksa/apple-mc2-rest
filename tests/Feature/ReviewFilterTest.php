@@ -51,9 +51,9 @@ class ReviewFilterTest extends TestCase
         $user = User::whereNotNull('api_token')->first();
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $user->api_token
-        ])->get('/api/review?price=0');
+        ])->get('/api/review?price=1');
 
-        $data_review = Review::where('price', '>=', '0')->where('price', '<=', '20000')->get();
+        $data_review = Review::where('price', '>=', '0')->where('price', '<=', '16000')->orderBy('created_at', 'desc')->get();
         $response->assertStatus(200)
             ->assertJson(
                 fn (AssertableJson $json) =>
@@ -63,15 +63,16 @@ class ReviewFilterTest extends TestCase
 
     public function test_filter_priceMulti()
     {
-        $user = User::whereNotNull('api_token')->first();        $response = $this->withHeaders([
+        $user = User::whereNotNull('api_token')->first();
+        $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $user->api_token
-        ])->get('/api/review?price=0,1');
+        ])->get('/api/review?price=1,2');
 
         $data_review = Review::where(function ($query) {
-            $query->where('price', '>=', '0')->where('price', '<=', '20000');
+            $query->where('price', '>=', '0')->where('price', '<=', '16000');
         })->orWhere(function ($query) {
-            $query->where('price', '>=', '20001')->where('price', '<=', '30000');
-        })->get();
+            $query->where('price', '>=', '16001')->where('price', '<=', '40000');
+        })->orderBy('created_at', 'desc')->get();
         $response->assertStatus(200)
             ->assertJson(
                 fn (AssertableJson $json) =>
@@ -86,7 +87,7 @@ class ReviewFilterTest extends TestCase
             'Authorization' => 'Bearer ' . $user->api_token
         ])->get('/api/review?FDA=shopeefood');
 
-        $data_review = Review::where('FDA', 'shopeefood')->get();
+        $data_review = Review::where('FDA', 'shopeefood')->orderBy('created_at', 'desc')->get();
         $response->assertStatus(200)
             ->assertJson(
                 fn (AssertableJson $json) =>
@@ -101,7 +102,7 @@ class ReviewFilterTest extends TestCase
             'Authorization' => 'Bearer ' . $user->api_token
         ])->get('/api/review?FDA=shopeefood,gofood');
 
-        $data_review = Review::where('FDA', 'shopeefood')->orWhere('FDA', 'gofood')->get();
+        $data_review = Review::where('FDA', 'shopeefood')->orWhere('FDA', 'gofood')->orderBy('created_at', 'desc')->get();
         $response->assertStatus(200)
             ->assertJson(
                 fn (AssertableJson $json) =>
@@ -114,9 +115,9 @@ class ReviewFilterTest extends TestCase
         $user = User::whereNotNull('api_token')->first();
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $user->api_token
-        ])->get('/api/review?rating=3');
+        ])->get('/api/review?rating=4');
 
-        $data_review = Review::where('rating', '>=', '3')->get();
+        $data_review = Review::where('rating', '>=', '4')->orderBy('created_at', 'desc')->get();
         $response->assertStatus(200)
             ->assertJson(
                 fn (AssertableJson $json) =>
@@ -129,12 +130,17 @@ class ReviewFilterTest extends TestCase
         $user = User::whereNotNull('api_token')->first();
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $user->api_token
-        ])->get('/api/review?pricestart=0&pricefinish=20000&FDA=gofood&rating=2');
+        ])->get('/api/review?price=2&FDA=shopeefood,gofood&rating=4');
 
-        $data_review = Review::where('price', '>=', '0')
-            ->where('price', '<=', '20000')
-            ->where('FDA', 'gofood')
-            ->where('rating', '2')
+        $data_review = Review::where(function ($query) {
+            $query->where('price', '>=', '16001')
+                ->where('price', '<=', '40000');
+        })
+            ->where(function ($query) {
+                $query->orWhere('FDA', 'gofood')->orWhere('FDA', 'shopeefood');
+            })
+            ->where('rating', '>=', '4')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         $response->assertStatus(200)
@@ -149,7 +155,7 @@ class ReviewFilterTest extends TestCase
         $user = User::whereNotNull('api_token')->first();
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $user->api_token
-        ])->get('/api/review?pricestart=0&pricefinish=20000&FDA=gofood&rating=4');
+        ])->get('/api/review?price=4&FDA=gofood&rating=4');
 
         $response->assertStatus(404)
             ->assertJson(
