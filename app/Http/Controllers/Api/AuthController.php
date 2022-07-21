@@ -109,7 +109,7 @@ class AuthController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $nameimg = time() . "_" . $request->image->getClientOriginalName();
+            $nameimg = time() . "_profile_" . rand(1, 1000)  . $request->image->extension();
             $request->image->storeAs('public', $nameimg);
 
             $user->image = $nameimg;

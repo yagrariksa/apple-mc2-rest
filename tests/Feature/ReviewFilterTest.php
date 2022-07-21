@@ -51,9 +51,27 @@ class ReviewFilterTest extends TestCase
         $user = User::whereNotNull('api_token')->first();
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $user->api_token
-        ])->get('/api/review?pricestart=0&pricefinish=20000');
+        ])->get('/api/review?price=0');
 
         $data_review = Review::where('price', '>=', '0')->where('price', '<=', '20000')->get();
+        $response->assertStatus(200)
+            ->assertJson(
+                fn (AssertableJson $json) =>
+                $this->is_not_null($json, $data_review)
+            );
+    }
+
+    public function test_filter_priceMulti()
+    {
+        $user = User::whereNotNull('api_token')->first();        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $user->api_token
+        ])->get('/api/review?price=0,1');
+
+        $data_review = Review::where(function ($query) {
+            $query->where('price', '>=', '0')->where('price', '<=', '20000');
+        })->orWhere(function ($query) {
+            $query->where('price', '>=', '20001')->where('price', '<=', '30000');
+        })->get();
         $response->assertStatus(200)
             ->assertJson(
                 fn (AssertableJson $json) =>
@@ -76,6 +94,21 @@ class ReviewFilterTest extends TestCase
             );
     }
 
+    public function test_filter_fdaMulti()
+    {
+        $user = User::whereNotNull('api_token')->first();
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $user->api_token
+        ])->get('/api/review?FDA=shopeefood,gofood');
+
+        $data_review = Review::where('FDA', 'shopeefood')->orWhere('FDA', 'gofood')->get();
+        $response->assertStatus(200)
+            ->assertJson(
+                fn (AssertableJson $json) =>
+                $this->is_not_null($json, $data_review)
+            );
+    }
+
     public function test_filter_rating()
     {
         $user = User::whereNotNull('api_token')->first();
@@ -83,7 +116,7 @@ class ReviewFilterTest extends TestCase
             'Authorization' => 'Bearer ' . $user->api_token
         ])->get('/api/review?rating=3');
 
-        $data_review = Review::where('rating', '3')->get();
+        $data_review = Review::where('rating', '>=', '3')->get();
         $response->assertStatus(200)
             ->assertJson(
                 fn (AssertableJson $json) =>
