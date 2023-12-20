@@ -110,9 +110,10 @@ class ReviewController extends Controller
 
     public function my(Request $request)
     {
-        $user = Auth::user();
-        $user = User::with('reviews', 'reviews.user', 'reviews.food', 'reviews.food.restaurant', 'reviews.images')->find($user->id);
-        $reviews = $user->reviews;
+        $reviews = Review::with('user', 'food', 'food.restaurant', 'images')
+            ->where('user_id', Auth::user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
         return response()->json([
             'message' => 'retrieve my reviews data',
             'data' => ReviewResource::collection($reviews)
